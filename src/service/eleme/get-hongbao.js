@@ -105,6 +105,8 @@ module.exports = async (req, res) => {
             }
             cookie.status = CookieStatus.LIMIT;
             break;
+          case 10:
+            return response(98, '由于饿了么更新了，领取失败')
         }
 
         // 计算剩余第几个为最佳红包
