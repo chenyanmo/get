@@ -8,7 +8,6 @@ const checkCookieResponse = require('../check-cookie-response');
 module.exports = async (req, res) => {
   const {cookie} = req.body;
   const response = checkCookieResponse(req, res);
-  return response(99, '由于饿了么更新了，暂停贡献功能，何时开放请留意公告')
 
   if (cookie.indexOf('snsInfo[wx2a416286e96100ed]=') === -1 && cookie.indexOf('snsInfo[101204453]=') === -1) {
     return response(4, 'cookie 不正确，请确保内容包含：\n\nsnsInfo[wx2a416286e96100ed] 或 snsInfo[101204453]');
@@ -42,6 +41,7 @@ module.exports = async (req, res) => {
         return response(2, '请换一个不领饿了么红包的小号来贡献');
       }
 
+      sns.mobile = data.account;
       response(0, 'cookie 验证通过', sns);
     } catch (e) {
       logger.error(e.message);

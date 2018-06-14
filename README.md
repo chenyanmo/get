@@ -8,7 +8,7 @@ https://www.mtdhb.com 红包核心领取逻辑，需配合 [mtdhb/api](https://g
 
 ## 版本
 
-[mtdhb/get/releases](https://github.com/mtdhb/get/releases)
+[查看历史版本](https://github.com/mtdhb/get/releases)
 
 ## 环境
 

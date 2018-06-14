@@ -6,7 +6,8 @@ module.exports = (req, res) => (code, message, data) => {
       openid: data.openid || data.openId || '',
       headimgurl: data.headimgurl || data.avatar || data.imgUrl || '',
       nickname: data.nickname || '',
-      service: data.service
+      service: data.service,
+      mobile: data.mobile || '',
     };
   }
   const r = {
