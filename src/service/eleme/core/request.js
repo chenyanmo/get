@@ -34,33 +34,17 @@ module.exports = class Request {
     return data;
   }
 
-  async hongbao({phone, openid, sign, platform}) {
-    const bind = async () => {
-      await this.http.put(`/restapi/v1/weixin/${openid}/phone`, {sign, phone});
-      logger.info('绑定手机号', phone);
-    };
-
-    try {
-      await bind();
-    } catch (e) {
-      try {
-        await bind();
-      } catch (e) {
-        logger.error('重试绑定仍然异常', e.message);
-        return null;
-      }
-    }
-
-    logger.info('使用 %s 领取', phone);
+  async hongbao({openid, sign, platform}) {
+    logger.info('使用 openid(%s) 领取', openid);
 
     const {data = {}} = await this.http.post(`/restapi/marketing/promotion/weixin/${openid}`, {
       device_id: '',
       group_sn: this.sn,
       hardware_id: '',
       method: 'phone',
-      phone,
       platform,
       sign,
+      phone: '',
       track_id: '',
       unionid: 'fuck', // 别问为什么传 fuck，饿了么前端就是这么传的
       weixin_avatar: '',

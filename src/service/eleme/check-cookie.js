@@ -1,7 +1,6 @@
 const querystring = require('querystring');
 const cookie2sns = require('./core/cookie2sns');
 const Request = require('./core/request');
-const Random = require('../../util/random');
 const logger = require('../../util/logger')('service/eleme');
 const checkCookieResponse = require('../check-cookie-response');
 
@@ -27,7 +26,6 @@ module.exports = async (req, res) => {
   return (async function check() {
     try {
       const data = await request.hongbao({
-        phone: Random.phone(),
         openid: sns.openid,
         sign: sns.eleme_key,
         platform: query.platform

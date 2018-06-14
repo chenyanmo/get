@@ -5,19 +5,13 @@ const Request = require('./core/request');
 const logger = require('../../util/logger')('service/eleme');
 const CookieStatus = require('../../constant/cookie-status');
 const getHongbaoResponse = require('../get-hongbao-response');
-const NO_MOBILE = '10000000000';
 
 module.exports = async (req, res) => {
-  let {url, mobile, cookies, limit} = req.body;
+  let {url, cookies, limit} = req.body;
   const response = getHongbaoResponse(req, res);
-  mobile = mobile || NO_MOBILE;
 
-  if (!url || !mobile) {
-    return response(1, '请将信息填写完整');
-  }
-
-  if (!/^1\d{10}$/.test(mobile)) {
-    return response(2, '请填写 11 位手机号码');
+  if (!url) {
+    return response(1, '饿了么红包链接不能为空');
   }
 
   if (url.indexOf('https://h5.ele.me/hongbao/') === -1) {
@@ -40,7 +34,7 @@ module.exports = async (req, res) => {
   }
 
   const lucky = await (async function lottery() {
-    if (mobile === NO_MOBILE && number === 1) {
+    if (number === 1) {
       return response(99, '已领取到最佳前一个红包。下一个是最大红包，请手动打开红包链接领取');
     }
 
@@ -56,10 +50,7 @@ module.exports = async (req, res) => {
     const sns = cookie2sns(cookie.value) || {};
 
     try {
-      const phone = number === 1 ? mobile : Random.phone(mobile);
       const data = await request.hongbao({
-        // 如果这个是最佳红包，换成指定的手机号领取
-        phone,
         openid: sns.openid,
         sign: sns.eleme_key,
         platform: query.platform
@@ -81,13 +72,6 @@ module.exports = async (req, res) => {
           case 2:
             // 这个号 抢过这个红包
             cookie.status = CookieStatus.USED;
-            // TODO: 有一定几率不对，有可能是 cookie 号领过，因为概率比较低，所以暂时先这样
-            if (phone === mobile) {
-              return response(
-                11,
-                '你的手机号之前领过小红包，无法领最大了。下一个是最大红包，别再点网站的领取按钮，请手动打开红包链接领取'
-              );
-            }
             break;
           case 3:
           case 4:
@@ -96,17 +80,12 @@ module.exports = async (req, res) => {
             break;
           case 5:
             // 没次数了，有可能是手机号没次数了，也有可能是 cookie 没次了
-            // 如果是自己的号领的，没次了，直接提示
-            if (phone === mobile) {
-              return response(
-                9,
-                '你的手机号（或代领最佳的小号）今日领取次数已达上限。下一个是最大红包，别再点网站的领取按钮，请手动打开红包链接领取'
-              );
-            }
             cookie.status = CookieStatus.LIMIT;
             break;
           case 10:
-            return response(98, '由于饿了么更新了，领取失败')
+            // 饿了么更新了，要验证码
+            cookie.status = CookieStatus.INVALID
+            break
         }
 
         // 计算剩余第几个为最佳红包
@@ -131,7 +110,7 @@ module.exports = async (req, res) => {
 
         logger.info(`还要领 ${number} 个红包才是手气最佳`);
 
-        if (limit - 1 < number - (mobile === NO_MOBILE ? 1 : 0)) {
+        if (limit < number) {
           return response(8, `您的剩余可消耗次数不足以领取此红包，还差 ${number} 个是最佳红包`);
         }
       }
@@ -144,12 +123,6 @@ module.exports = async (req, res) => {
         // 还有 cookie 继续
         if (index < cookies.length - 1) {
           return lottery();
-        } else if (number === 1) {
-          // 400 重试过了，仍然 400，而且马上要最大红包了
-          return response(
-            10,
-            '饿了么返回错误或者你的手机号今日领取次数已达上限。下一个是最大红包，别再点网站的领取按钮，请手动打开红包链接领取'
-          );
         }
       }
 

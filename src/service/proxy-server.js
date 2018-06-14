@@ -12,7 +12,7 @@ const logger = require('../util/logger')('service/proxy');
 //  }
 // }
 // const server = [null];
-const server = [{host: process.env.PROXY_HOST, port: process.env.PROXY_PORT}];
+const server = [{host: process.env.PROXY_HOST, port: Number(process.env.PROXY_PORT)}];
 
 module.exports = () => {
   const proxy = Random.array(server);
