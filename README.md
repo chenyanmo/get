@@ -6,6 +6,10 @@ https://www.mtdhb.com 红包核心领取逻辑，需配合 [mtdhb/api](https://g
 
 基于 [mtdhb/old](https://github.com/mtdhb/old) 改造，代码比较乱，自行研究和部署吧
 
+## 版本
+
+[mtdhb/get/releases](https://github.com/mtdhb/get/releases)
+
 ## 环境
 
 Node.js 9.x
